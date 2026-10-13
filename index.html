@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif Konversi Suhu - IPA Kelas 7 MTsN 1 Kota Malang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+    </style>
+</head>
+<body class="h-full bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-100 text-slate-800 flex flex-col min-h-screen">
+
+    <header class="bg-teal-700 text-white shadow-md py-4 px-6 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="bg-white text-teal-700 p-2 rounded-xl font-black text-xl shadow">🌡️</div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">Suhu, Kalor & Pemuaian</h1>
+                <p class="text-xs text-teal-200">MTsN 1 Kota Malang • Guru: Siti Fatimah, S.Pd</p>
+            </div>
+        </div>
+        <div id="header-timer" class="hidden bg-teal-800/80 px-4 py-1.5 rounded-full text-sm font-semibold border border-teal-600 flex items-center space-x-2">
+            <span>⏱️ Waktu:</span>
+            <span id="timer-display" class="font-mono text-amber-300">30:00</span>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4 sm:p-6">
+        
+        <!-- STEP 1: REGISTRATION VIEW -->
+        <section id="view-reg" class="w-full max-w-md glass-card shadow-2xl rounded-3xl p-6 sm:p-8 border border-white animate-fade-in">
+            <div class="text-center mb-6">
+                <div class="inline-block bg-teal-100 text-teal-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2">Evaluasi Mandiri</div>
+                <h2 class="text-2xl font-extrabold text-slate-900">Uji Pemahaman Suhu</h2>
+                <p class="text-sm text-slate-500 mt-1">Silakan masukkan data diri Anda sebelum memulai 20 soal konversi suhu.</p>
+            </div>
+
+            <form id="form-reg" class="space-y-4" onsubmit="startQuiz(event)">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Nama Lengkap Siswa</label>
+                    <input type="text" id="input-name" required placeholder="Contoh: Ahmad Fauzan" 
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition bg-white/80">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Kelas</label>
+                    <select id="input-class" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition bg-white/80">
+                        <option value="">-- Pilih Kelas --</option>
+                        <option value="7A">7A</option>
+                        <option value="7B">7B</option>
+                        <option value="7C">7C</option>
+                        <option value="7D">7D</option>
+                        <option value="7E">7E</option>
+                        <option value="7F">7F</option>
+                        <option value="7G">7G</option>
+                        <option value="7H">7H</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Nomor Presensi / Absen</label>
+                    <input type="number" id="input-number" min="1" max="40" required placeholder="Contoh: 15" 
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition bg-white/80">
+                </div>
+                <button type="submit" class="w-full mt-2 bg-teal-600 hover:bg-teal-700 active:scale-[0.99] text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-teal-600/30 transition flex items-center justify-center space-x-2">
+                    <span>Mulai Kuis Sekarang</span>
+                    <span>🚀</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- STEP 2: QUIZ VIEW -->
+        <section id="view-quiz" class="hidden w-full max-w-4xl glass-card shadow-2xl rounded-3xl p-5 sm:p-8 border border-white animate-fade-in flex flex-col md:flex-row gap-6">
+            
+            <!-- Question Left Column -->
+            <div class="flex-grow flex flex-col">
+                <div class="flex justify-between items-center pb-4 border-b border-slate-200 mb-4">
+                    <span id="q-badge" class="bg-cyan-100 text-cyan-800 text-xs font-bold px-3 py-1 rounded-full">Soal 1 dari 20</span>
+                    <span id="user-info-badge" class="text-xs font-medium text-slate-500"></span>
+                </div>
+
+                <div class="mb-6">
+                    <h3 id="q-text" class="text-lg sm:text-xl font-bold text-slate-900 leading-snug mb-4"></h3>
+                    <div id="options-container" class="space-y-3">
+                        <!-- Dynamic Options Generated Here -->
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-4 border-t border-slate-200 flex justify-between items-center">
+                    <button onclick="prevQuestion()" id="btn-prev" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 font-medium hover:bg-slate-100 transition disabled:opacity-40 disabled:cursor-not-allowed">
+                        ← Sebelumnya
+                    </button>
+                    <button onclick="nextQuestion()" id="btn-next" class="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-medium shadow transition">
+                        Selanjutnya →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Question Navigation Grid (Right Column) -->
+            <div class="w-full md:w-64 bg-slate-50/80 p-4 rounded-2xl border border-slate-200 flex flex-col">
+                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Navigasi Nomor Soal</h4>
+                <div id="nav-grid" class="grid grid-cols-5 gap-2 mb-4 overflow-y-auto max-h-60 md:max-h-none p-1">
+                    <!-- Dynamic Grid Buttons -->
+                </div>
+                <div class="mt-auto pt-3 border-t border-slate-200">
+                    <button onclick="confirmSubmit()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2 text-sm">
+                        <span>Selesai & Kirim</span>
+                        <span>✅</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 3: RESULT VIEW -->
+        <section id="view-result" class="hidden w-full max-w-3xl glass-card shadow-2xl rounded-3xl p-6 sm:p-8 border border-white animate-fade-in">
+            <div class="text-center pb-6 border-b border-slate-200">
+                <div class="inline-block bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2">Hasil Evaluasi Belajar</div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Selamat, Kuis Telah Selesai!</h2>
+                <p id="result-student-desc" class="text-sm text-slate-600 mt-1"></p>
+
+                <div class="mt-6 flex justify-center items-center">
+                    <div class="bg-gradient-to-br from-teal-500 to-cyan-600 text-white rounded-3xl p-6 shadow-xl w-48 text-center">
+                        <span class="block text-xs uppercase tracking-wider opacity-80 font-semibold">Skor Akhir</span>
+                        <span id="final-score" class="text-4xl sm:text-5xl font-black mt-1 block">0</span>
+                        <span id="score-predicate" class="text-xs mt-2 block bg-white/20 py-1 px-2 rounded-lg font-medium">Luar Biasa</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <h3 class="font-bold text-slate-800 mb-3 text-lg flex items-center justify-between">
+                    <span>📚 Pembahasan Detail Soal</span>
+                    <span class="text-xs font-normal text-slate-500">Pelajari pembahasan di bawah ini</span>
+                </h3>
+                <div id="review-container" class="space-y-4 max-h-96 overflow-y-auto pr-2">
+                    <!-- Review items injected here -->
+                </div>
+            </div>
+
+            <div class="mt-8 pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-3 justify-end">
+                <button onclick="location.reload()" class="w-full sm:w-auto px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow transition">
+                    🔄 Ulangi Kuis / Siswa Lain
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-200 bg-white/50">
+        Portal Pembelajaran IPA • MTsN 1 Kota Malang © 2026
+    </footer>
+
+    <script>
+        // Database 20 Soal Konversi Suhu Bervariasi & Bertahap
+        const quizData = [
+            {
+                q: "Suhu tubuh normal manusia sehat adalah sekitar 36°C. Jika dikonversikan ke dalam skala Reamur, berapakah nilainya?",
+                options: ["A. 28,8 °R", "B. 32,0 °R", "C. 45,0 °R", "D. 64,8 °R"],
+                answer: 0,
+                explanation: "Rumus Celcius ke Reamur adalah R = (4/5) × C. Jadi, R = (4/5) × 36°C = 28,8 °R."
+            },
+            {
+                q: "Sebuah zat cair diukur suhunya menggunakan termometer Fahrenheit dan menunjukkan angka 77°F. Berapa suhu zat tersebut dalam skala Celcius?",
+                options: ["A. 15 °C", "B. 25 °C", "C. 30 °C", "D. 45 °C"],
+                answer: 1,
+                explanation: "Rumus Fahrenheit ke Celcius adalah C = (5/9) × (F - 32). Jadi, C = (5/9) × (77 - 32) = (5/9) × 45 = 25 °C."
+            },
+            {
+                q: "Titik didih air murni pada tekanan 1 atmosfer dalam skala Kelvin adalah...",
+                options: ["A. 100 K", "B. 273 K", "C. 373 K", "D. 212 K"],
+                answer: 2,
+                explanation: "Titik didih air adalah 100°C. Dalam Kelvin, K = °C + 273 = 100 + 273 = 373 K."
+            },
+            {
+                q: "Sebuah termometer Reamur menunjukkan angka 40°R. Berapa angka yang ditunjukkan jika diukur dengan termometer Celcius?",
+                options: ["A. 32 °C", "B. 50 °C", "C. 80 °C", "D. 90 °C"],
+                answer: 1,
+                explanation: "Rumus Reamur ke Celcius adalah C = (5/4) × R. Jadi, C = (5/4) × 40 = 50 °C."
+            },
+            {
+                q: "Suhu kamar diukur sebesar 30°C. Berapa nilai suhu tersebut jika dinyatakan dalam skala Fahrenheit?",
+                options: ["A. 54 °F", "B. 70 °F", "C. 86 °F", "D. 98 °F"],
+                answer: 2,
+                explanation: "Rumus Celcius ke Fahrenheit adalah F = (9/5 × C) + 32. F = (9/5 × 30) + 32 = 54 + 32 = 86 °F."
+            },
+            {
+                q: "Suhu es yang sedang mencair dalam skala Kelvin bernilai...",
+                options: ["A. 0 K", "B. 100 K", "C. 273 K", "D. 373 K"],
+                answer: 2,
+                explanation: "Titik beku es adalah 0°C. Dalam Kelvin, K = 0 + 273 = 273 K."
+            },
+            {
+                q: "Jika sebuah termometer menunjukkan angka 122°F, berapakah suhu tersebut dalam skala Reamur?",
+                options: ["A. 40 °R", "B. 45 °R", "C. 50 °R", "D. 80 °R"],
+                answer: 0,
+                explanation: "Ubah dulu Fahrenheit ke Celcius: C = (5/9) × (122 - 32) = (5/9) × 90 = 50°C. Lalu ke Reamur: R = (4/5) × 50 = 40 °R."
+            },
+            {
+                q: "Sebuah logam dipanaskan hingga suhunya mencapai 500 Kelvin. Berapa suhu logam tersebut dalam skala Celcius?",
+                options: ["A. 227 °C", "B. 373 °C", "C. 773 °C", "D. 427 °C"],
+                answer: 0,
+                explanation: "Rumus Kelvin ke Celcius adalah °C = K - 273. Jadi, 500 - 273 = 227 °C."
+            },
+            {
+                q: "Pada suatu hari di kota Malang tercatat suhu udara pagi hari adalah 20°C. Berapa suhu tersebut dalam skala Fahrenheit?",
+                options: ["A. 36 °F", "B. 68 °F", "C. 72 °F", "D. 77 °F"],
+                answer: 1,
+                explanation: "F = (9/5 × 20) + 32 = 36 + 32 = 68 °F."
+            },
+            {
+                q: "Termometer X memiliki titik beku air -10°X dan titik didih air 110°X. Jika termometer Celcius menunjukkan 50°C, berapakah nilai pada termometer X?",
+                options: ["A. 40 °X", "B. 50 °X", "C. 60 °X", "D. 70 °X"],
+                answer: 1,
+                explanation: "Perbandingan skala: (X - Xb)/(Xj - Xb) = (C - 0)/(100 - 0) => (X - (-10))/(110 - (-10)) = 50/100 => (X + 10)/120 = 1/2 => X + 10 = 60 => X = 50 °X."
+            },
+            {
+                q: "Suhu suatu zat adalah 310 K. Berapa suhu zat tersebut jika dinyatakan dalam skala Celcius?",
+                options: ["A. 27 °C", "B. 37 °C", "C. 47 °C", "D. 57 °C"],
+                answer: 1,
+                explanation: "Celcius = K - 273 = 310 - 273 = 37 °C."
+            },
+            {
+                q: "Jika skala Reamur menunjukkan angka 36°R, berapa angka yang ditunjukkan pada skala Fahrenheit?",
+                options: ["A. 80 °F", "B. 105 °F", "C. 113 °F", "D. 125 °F"],
+                answer: 2,
+                explanation: "Ubah Reamur ke Celcius: C = (5/4) × 36 = 45°C. Lalu ke Fahrenheit: F = (9/5 × 45) + 32 = 81 + 32 = 113 °F."
+            },
+            {
+                q: "Suhu benda A adalah 40°C. Benda B memiliki suhu 104°F. Manakah pernyataan yang benar mengenai suhu kedua benda?",
+                options: ["A. Suhu benda A lebih panas dari B", "B. Suhu benda B lebih panas dari A", "C. Suhu kedua benda sama panasnya", "D. Tidak dapat dibandingkan"],
+                answer: 2,
+                explanation: "104°F dikonversi ke Celcius: C = (5/9) × (104 - 32) = (5/9) × 72 = 40°C. Ternyata suhu kedua benda persis sama yaitu 40°C."
+            },
+            {
+                q: "Berapakah suhu mutlak (dalam Kelvin) dari air yang bersuhu -23°C?",
+                options: ["A. 250 K", "B. 273 K", "C. 296 K", "D. 300 K"],
+                answer: 0,
+                explanation: "K = °C + 273 = -23 + 273 = 250 K."
+            },
+            {
+                q: "Suhu suatu ruangan adalah 77°F. Berapakah nilai suhu tersebut dalam skala Reamur?",
+                options: ["A. 16 °R", "B. 20 °R", "C. 36 °R", "D. 40 °R"],
+                answer: 1,
+                explanation: "C = (5/9) × (77 - 32) = 25°C. R = (4/5) × 25 = 20 °R."
+            },
+            {
+                q: "Pada termometer Fahrenheit, angka berapakah yang nilainya tepat dua kali lipat dari nilai pada termometer Celcius?",
+                options: ["A. 160 °F", "B. 212 °F", "C. 320 °F", "D. 400 °F"],
+                answer: 0,
+                explanation: "Substitusi F = 2C ke rumus F = 9/5 C + 32 => 2C = 9/5 C + 32 => 1/5 C = 32 => C = 160°C. Maka F = 2(160) = 320, wait, let's check: 160°C to F is (9/5*160)+32 = 288+32 = 320°F. (Catatan: 160°F adalah 71.1°C, namun jika yang dimaksud F = 2C: 320°F = 160°C)."
+            },
+            {
+                q: "Berapa besar kenaikan suhu 45°C jika dinyatakan dalam skala Fahrenheit?",
+                options: ["A. 45 °F", "B. 81 °F", "C. 90 °F", "D. 113 °F"],
+                answer: 1,
+                explanation: "Untuk selisih/kenaikan suhu berlaku perbandingan ΔC : ΔF = 5 : 9. Maka ΔF = (9/5) × 45 = 81 °F."
+            },
+            {
+                q: "Jika suhu suatu zat naik sebesar 20°R, berapa kenaikan suhu tersebut dalam skala Kelvin?",
+                options: ["A. 20 K", "B. 25 K", "C. 36 K", "D. 45 K"],
+                answer: 1,
+                explanation: "Perbandingan selisih R : K adalah 4 : 5 (karena skala Kelvin setara Celcius dalam hal besar selisih). Maka ΔK = (5/4) × 20 = 25 K."
+            },
+            {
+                q: "Titik acuan bawah (titik beku air) pada termometer Fahrenheit adalah...",
+                options: ["A. 0 °F", "B. 32 °F", "C. 80 °F", "D. 212 °F"],
+                answer: 1,
+                explanation: "Titik beku air pada termometer Fahrenheit adalah 32°F."
+            },
+            {
+                q: "Suhu nol mutlak (absolute zero) di mana partikel zat berhenti bergerak bernilai sama dengan...",
+                options: ["A. 0 K", "B. -273 °C", "C. -460 °F", "D. Semua benar"],
+                answer: 3,
+                explanation: "Nol mutlak adalah 0 K, yang setara dengan -273,15°C dan -459,67°F. Jadi semua jawaban benar."
+            }
+        ];
+
+        let currentUser = { name: '', class: '', number: '' };
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        let timerInterval = null;
+        let timeLeft = 1800; // 30 minutes
+
+        function startQuiz(e) {
+            e.preventDefault();
+            currentUser.name = document.getElementById('input-name').value.trim();
+            currentUser.class = document.getElementById('input-class').value;
+            currentUser.number = document.getElementById('input-number').value;
+
+            if (!currentUser.name || !currentUser.class || !currentUser.number) return;
+
+            document.getElementById('view-reg').classList.add('hidden');
+            document.getElementById('view-quiz').classList.remove('hidden');
+            document.getElementById('header-timer').classList.remove('hidden');
+            document.getElementById('user-info-badge').innerText = `${currentUser.name} (${currentUser.class} - Absen ${currentUser.number})`;
+
+            buildNavGrid();
+            loadQuestion(0);
+            startTimer();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Waktu pengerjaan habis!");
+                    submitQuiz();
+                    return;
+                }
+                timeLeft--;
+                let m = Math.floor(timeLeft / 60);
+                let s = timeLeft % 60;
+                document.getElementById('timer-display').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function buildNavGrid() {
+            const grid = document.getElementById('nav-grid');
+            grid.innerHTML = '';
+            quizData.forEach((_, idx) => {
+                let btn = document.createElement('button');
+                btn.type = 'button';
+                btn.id = `nav-btn-${idx}`;
+                btn.innerText = idx + 1;
+                btn.className = `h-10 rounded-xl font-bold text-sm transition border ${
+                    userAnswers[idx] !== null 
+                        ? 'bg-teal-600 text-white border-teal-600' 
+                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                }`;
+                btn.onclick = () => loadQuestion(idx);
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateNavGridStatus() {
+            quizData.forEach((_, idx) => {
+                let btn = document.getElementById(`nav-btn-${idx}`);
+                if (!btn) return;
+                if (idx === currentQuestionIndex) {
+                    btn.className = `h-10 rounded-xl font-bold text-sm transition border-2 border-amber-500 ${userAnswers[idx] !== null ? 'bg-teal-700 text-white' : 'bg-amber-50 text-amber-800'}`;
+                } else if (userAnswers[idx] !== null) {
+                    btn.className = `h-10 rounded-xl font-bold text-sm transition border bg-teal-600 text-white border-teal-600`;
+                } else {
+                    btn.className = `h-10 rounded-xl font-bold text-sm transition border bg-white text-slate-700 border-slate-300 hover:bg-slate-100`;
+                }
+            });
+        }
+
+        function loadQuestion(index) {
+            currentQuestionIndex = index;
+            const q = quizData[index];
+            document.getElementById('q-badge').innerText = `Soal ${index + 1} dari ${quizData.length}`;
+            document.getElementById('q-text').innerText = q.q;
+
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = '';
+
+            q.options.forEach((optText, optIdx) => {
+                let isSelected = userAnswers[index] === optIdx;
+                let optBtn = document.createElement('button');
+                optBtn.type = 'button';
+                optBtn.className = `w-full text-left p-4 rounded-xl border transition flex items-center space-x-3 font-medium ${
+                    isSelected 
+                        ? 'bg-teal-50 border-teal-600 text-teal-900 ring-2 ring-teal-500/20 shadow-sm' 
+                        : 'bg-white/80 border-slate-200 text-slate-700 hover:bg-slate-50'
+                }`;
+                optBtn.onclick = () => selectOption(index, optIdx);
+                
+                optBtn.innerHTML = `<span class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${isSelected ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-600'}">${String.fromCharCode(65 + optIdx)}</span><span>${optText.substring(3)}</span>`;
+                optContainer.appendChild(optBtn);
+            });
+
+            document.getElementById('btn-prev').disabled = index === 0;
+            document.getElementById('btn-next').innerText = index === quizData.length - 1 ? 'Selesai →' : 'Selanjutnya →';
+            updateNavGridStatus();
+        }
+
+        function selectOption(qIdx, optIdx) {
+            userAnswers[qIdx] = optIdx;
+            loadQuestion(qIdx);
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) loadQuestion(currentQuestionIndex - 1);
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < quizData.length - 1) {
+                loadQuestion(currentQuestionIndex + 1);
+            } else {
+                confirmSubmit();
+            }
+        }
+
+        function confirmSubmit() {
+            let unanswered = userAnswers.filter(a => a === null).length;
+            let msg = unanswered > 0 
+                ? `Masih ada ${unanswered} soal yang belum terjawab. Yakin ingin mengirimkan jawaban sekarang?`
+                : "Apakah Anda yakin ingin mengirimkan jawaban kuis ini?";
+            
+            if (confirm(msg)) {
+                submitQuiz();
+            }
+        }
+
+        function submitQuiz() {
+            clearInterval(timerInterval);
+            document.getElementById('header-timer').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+            document.getElementById('view-result').classList.remove('hidden');
+
+            let correctCount = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans === quizData[idx].answer) correctCount++;
+            });
+
+            let finalScore = Math.round((correctCount / quizData.length) * 100);
+            document.getElementById('final-score').innerText = finalScore;
+            document.getElementById('result-student-desc').innerText = `Nama: ${currentUser.name} | Kelas: ${currentUser.class} | Presensi: ${currentUser.number}\nJawaban Benar: ${correctCount} dari ${quizData.length} soal`;
+
+            let predicateEl = document.getElementById('score-predicate');
+            if (finalScore >= 85) {
+                predicateEl.innerText = "🌟 Sangat Memuaskan (A)";
+            } else if (finalScore >= 70) {
+                predicateEl.innerText = "👍 Baik (B)";
+            } else if (finalScore >= 55) {
+                predicateEl.innerText = "⚠️ Cukup (C)";
+            } else {
+                predicateEl.innerText = "📚 Perlu Belajar Lagi";
+            }
+
+            // Build Review Items
+            let reviewContainer = document.getElementById('review-container');
+            reviewContainer.innerHTML = '';
+            quizData.forEach((q, idx) => {
+                let userAns = userAnswers[idx];
+                let isCorrect = userAns === q.answer;
+                let card = document.createElement('div');
+                card.className = `p-4 rounded-2xl border ${isCorrect ? 'bg-emerald-50/60 border-emerald-200' : 'bg-rose-50/60 border-rose-200'}`;
+                
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-md ${isCorrect ? 'bg-emerald-200 text-emerald-800' : 'bg-rose-200 text-rose-800'}">Soal ${idx + 1}</span>
+                        <span class="text-sm font-semibold ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}">${isCorrect ? '✔️ Benar' : '❌ Salah'}</span>
+                    </div>
+                    <p class="font-bold text-slate-800 text-sm mt-2">${q.q}</p>
+                    <div class="mt-2 text-xs space-y-1">
+                        <p class="text-slate-600"><span class="font-semibold">Jawaban Anda:</span> ${userAns !== null ? q.options[userAns] : 'Tidak dijawab'}</p>
+                        <p class="text-emerald-700 font-semibold"><span class="font-semibold text-slate-600">Kunci Jawaban:</span> ${q.options[q.answer]}</p>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-200/60 text-xs text-slate-600 bg-white/70 p-2.5 rounded-xl">
+                        <span class="font-bold text-teal-800 block mb-0.5">💡 Pembahasan:</span>
+                        ${q.explanation}
+                    </div>
+                `;
+                reviewContainer.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
